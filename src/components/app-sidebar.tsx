@@ -31,7 +31,7 @@ const data = {
     },
     {
       title: "Daily Usage",
-      url: "#daily",
+      url: "/daily",
       icon: IconCalendar,
     },
     {
