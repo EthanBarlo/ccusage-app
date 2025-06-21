@@ -4,7 +4,8 @@ import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Database } from "lucide-react";
+import { RefreshCw, Database, DollarSign, Activity, CreditCard } from "lucide-react";
+import { StatCard } from "@/renderer/components/StatCard";
 
 const chartConfig = {
   cost: {
@@ -73,7 +74,7 @@ export default function MonthlyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Monthly Usage</h1>
           <p className="text-muted-foreground">View your Claude Code usage statistics by month</p>
@@ -98,84 +99,35 @@ export default function MonthlyPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month's Cost</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentMonthData ? formatCost(currentMonthData.totalCost) : "$0.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {currentMonthData?.month || "No data"}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month's Cost"
+          description={currentMonthData?.month || "No data"}
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {currentMonthData ? formatCost(currentMonthData.totalCost) : "$0.00"}
+          </div>
+        </StatCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month's Tokens</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentMonthData ? formatTokens(currentMonthData.totalTokens) : "0"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total tokens used
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="This Month's Tokens"
+          description="Total tokens used"
+          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {currentMonthData ? formatTokens(currentMonthData.totalTokens) : "0"}
+          </div>
+        </StatCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {ccusageData?.totals ? formatCost(ccusageData.totals.totalCost) : "$0.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              All time total
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Cost"
+          description="All time total"
+          icon={<CreditCard className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {ccusageData?.totals ? formatCost(ccusageData.totals.totalCost) : "$0.00"}
+          </div>
+        </StatCard>
       </div>
 
       <Card>

@@ -64,21 +64,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
-                <img src={ccusageIcon} alt="Ccusage" className="!size-6" />
-                <span className="text-base font-semibold">
-                  Ccusage
-                </span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center gap-2 px-2 py-1.5">
+          <img src={ccusageIcon} alt="Ccusage" className="size-6" />
+          <span className="text-base font-semibold group-data-[collapsible=icon]:hidden">
+            Ccusage
+          </span>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
