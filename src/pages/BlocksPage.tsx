@@ -4,8 +4,9 @@ import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ReferenceLine } from "recharts";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, TrendingUp, Package } from "lucide-react";
+import { AlertCircle, TrendingUp, Package, RefreshCw, Database } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { 
   format, 
   startOfMonth, 
@@ -31,7 +32,15 @@ const BLOCKS_PER_PERIOD = 50;
 const BILLING_DATE_KEY = "billing_date";
 
 export default function BlocksPage() {
-  const { data: ccusageData, loading, error, runCommand } = useCcusage();
+  const { 
+    data: ccusageData, 
+    loading, 
+    error, 
+    runCommand,
+    refresh,
+    fromCache,
+    cacheAge
+  } = useCcusage({ autoRefresh: true });
 
   useEffect(() => {
     runCommand("blocks");
@@ -194,9 +203,28 @@ export default function BlocksPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">5-Hour Blocks</h1>
-        <p className="text-muted-foreground">View your Claude Code usage in 5-hour billing windows</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">5-Hour Blocks</h1>
+          <p className="text-muted-foreground">View your Claude Code usage in 5-hour billing windows</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {fromCache && (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Database className="h-4 w-4" />
+              <span>Cached {cacheAge}</span>
+            </div>
+          )}
+          <Button
+            onClick={refresh}
+            disabled={loading}
+            size="sm"
+            variant="outline"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

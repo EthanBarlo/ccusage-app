@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, Database } from "lucide-react";
 
 const chartConfig = {
   cost: {
@@ -12,7 +14,15 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function DailyPage() {
-  const { data: ccusageData, loading, error, runCommand } = useCcusage();
+  const { 
+    data: ccusageData, 
+    loading, 
+    error, 
+    runCommand, 
+    refresh,
+    fromCache,
+    cacheAge
+  } = useCcusage({ autoRefresh: true });
 
   useEffect(() => {
     runCommand("daily");
@@ -59,6 +69,15 @@ export default function DailyPage() {
       </div>
     );
   }
+  
+  // Debug: Show raw data structure
+  if (!ccusageData) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p>No data received from ccusage</p>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -70,9 +89,28 @@ export default function DailyPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Daily Usage</h1>
-        <p className="text-muted-foreground">View your Claude Code usage statistics by day</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Daily Usage</h1>
+          <p className="text-muted-foreground">View your Claude Code usage statistics by day</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {fromCache && (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Database className="h-4 w-4" />
+              <span>Cached {cacheAge}</span>
+            </div>
+          )}
+          <Button
+            onClick={refresh}
+            disabled={loading}
+            size="sm"
+            variant="outline"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
