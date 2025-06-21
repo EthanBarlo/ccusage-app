@@ -25,7 +25,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: IconDashboard,
       isActive: true,
     },
@@ -36,7 +36,7 @@ const data = {
     },
     {
       title: "Monthly Usage",
-      url: "#monthly",
+      url: "/monthly",
       icon: IconChartBar,
     },
     {
