@@ -24,18 +24,30 @@ export function useCcusage(options: UseCcusageOptions = {}) {
   const [currentCommand, setCurrentCommand] = useState<CommandType | null>(null);
 
   const runCommand = useCallback(async (command: string, forceRefresh = false) => {
-    // Validate command type
-    const commandType = command as CommandType;
-    if (!['daily', 'monthly', 'session', 'blocks'].includes(commandType)) {
-      setError(`Invalid command: ${command}`);
-      return;
-    }
+    // Extract base command from the full command
+    const commandParts = command.split(' ');
+    const baseCommand = commandParts[0];
+    const commandType = baseCommand as CommandType;
 
     setLoading(true);
     setError(null);
     setCurrentCommand(commandType);
     
     try {
+      // Check if this is a special command that bypasses cache (like blocks --active)
+      const shouldBypassCache = command.includes('--active') || command.includes('-a');
+      
+      if (shouldBypassCache) {
+        // For active blocks, always fetch fresh data directly
+        const freshData = await window.ccusageApi.runCommand(command);
+        console.log(`useCcusage: ${command} data:`, freshData);
+        setData(freshData);
+        setFromCache(false);
+        setCacheAge('');
+        return freshData;
+      }
+      
+      // For regular commands, use the data manager with caching
       const result = await dataManager.getData(commandType, { 
         force: forceRefresh,
         ttl 
