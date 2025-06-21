@@ -10,7 +10,7 @@ export default function BaseLayout({
 }) {
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden">
-      <DragWindowRegion title="Claude Code Tracker" />
+      <DragWindowRegion title="Ccusage" />
       <SidebarProvider defaultOpen={true}>
         <div className="flex flex-1 overflow-hidden relative min-h-0">
           <AppSidebar />

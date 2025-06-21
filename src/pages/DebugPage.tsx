@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 
-export default function HomePage() {
+export default function DebugPage() {
   const { data: ccusageData, loading, error, runCommand } = useCcusage();
 
   useEffect(() => {
@@ -13,13 +13,11 @@ export default function HomePage() {
 
   return (
     <>
-      {/* <SectionCards /> */}
-
       {/* ccusage Data Display */}
       <div className="mt-6 px-4 lg:px-6">
         <Card>
           <CardHeader>
-            <CardTitle>ccusage Data</CardTitle>
+            <CardTitle>Debug: Raw ccusage Data</CardTitle>
             <div className="flex gap-2">
               <Button
                 onClick={() => runCommand("daily")}
@@ -62,11 +60,6 @@ export default function HomePage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* <div className="px-4 lg:px-6">
-        <ChartAreaInteractive />
-      </div>
-      <DataTable data={data} /> */}
     </>
   );
 }
