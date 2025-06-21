@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Database, TrendingUp, Calendar } from "lucide-react";
 import { BlocksUsageCard } from "@/renderer/components/BlocksUsageCard";
 import { DailyUsageChart } from "@/renderer/components/DailyUsageChart";
+import { StatCard } from "@/renderer/components/StatCard";
 
 const BILLING_DATE_KEY = "billing_date";
 
@@ -126,8 +126,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-between items-start">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
@@ -158,41 +158,31 @@ export default function Dashboard() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Cost This Billing Period */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cost This Period</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCost(costThisPeriod)}</div>
-            <p className="text-xs text-muted-foreground">
-              {billingPeriod.daysRemaining} days remaining
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Cost This Period"
+          description={`${billingPeriod.daysRemaining} days remaining`}
+          icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">{formatCost(costThisPeriod)}</div>
+        </StatCard>
 
         {/* Blocks Used */}
         <BlocksUsageCard blocksData={blocksData} />
 
         {/* Average Daily Cost */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Daily Cost</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(() => {
-                const daysInPeriod = Math.ceil((billingPeriod.endDate.getTime() - billingPeriod.startDate.getTime()) / (1000 * 60 * 60 * 24));
-                const daysPassed = daysInPeriod - billingPeriod.daysRemaining;
-                return daysPassed > 0 ? formatCost(costThisPeriod / daysPassed) : "$0.00";
-              })()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Based on {Math.ceil((billingPeriod.endDate.getTime() - billingPeriod.startDate.getTime()) / (1000 * 60 * 60 * 24)) - billingPeriod.daysRemaining} days
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Daily Cost"
+          description={`Based on ${Math.ceil((billingPeriod.endDate.getTime() - billingPeriod.startDate.getTime()) / (1000 * 60 * 60 * 24)) - billingPeriod.daysRemaining} days`}
+          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {(() => {
+              const daysInPeriod = Math.ceil((billingPeriod.endDate.getTime() - billingPeriod.startDate.getTime()) / (1000 * 60 * 60 * 24));
+              const daysPassed = daysInPeriod - billingPeriod.daysRemaining;
+              return daysPassed > 0 ? formatCost(costThisPeriod / daysPassed) : "$0.00";
+            })()}
+          </div>
+        </StatCard>
       </div>
 
       {/* Daily Usage Chart */}

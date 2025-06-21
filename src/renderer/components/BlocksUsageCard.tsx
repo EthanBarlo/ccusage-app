@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Package } from "lucide-react";
 import { parseISO, differenceInDays, addMonths, subMonths } from "date-fns";
+import { StatCard } from "./StatCard";
 
 const BLOCKS_PER_PERIOD = 50;
 const BILLING_DATE_KEY = "billing_date";
@@ -54,20 +54,15 @@ export function BlocksUsageCard({ blocksData }: BlocksUsageCardProps) {
   const blocksUsagePercentage = (blocksInCurrentPeriod / BLOCKS_PER_PERIOD) * 100;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Blocks Used</CardTitle>
-        <Package className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">
-          {blocksInCurrentPeriod} / {BLOCKS_PER_PERIOD}
-        </div>
-        <Progress value={blocksUsagePercentage} className="mt-2" />
-        <p className="text-xs text-muted-foreground mt-1">
-          {blocksRemaining} blocks remaining
-        </p>
-      </CardContent>
-    </Card>
+    <StatCard
+      title="Blocks Used"
+      description={`${blocksRemaining} blocks remaining`}
+      icon={<Package className="h-4 w-4 text-muted-foreground" />}
+    >
+      <div className="text-2xl font-bold">
+        {blocksInCurrentPeriod} / {BLOCKS_PER_PERIOD}
+      </div>
+      <Progress value={blocksUsagePercentage} className="mt-2 mb-1" />
+    </StatCard>
   );
 }

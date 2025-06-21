@@ -6,6 +6,7 @@ import { Loader2, FolderOpen, DollarSign, Hash, RefreshCw, Database } from 'luci
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { StatCard } from '@/renderer/components/StatCard';
 
 const chartConfig = {
   cost: {
@@ -85,7 +86,7 @@ export function SessionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
           <p className="text-muted-foreground">Usage breakdown by project</p>
@@ -110,50 +111,35 @@ export function SessionsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-            <FolderOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {ccusageData?.sessions?.length || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Active project sessions
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Projects"
+          description="Active project sessions"
+          icon={<FolderOpen className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {ccusageData?.sessions?.length || 0}
+          </div>
+        </StatCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {ccusageData?.totals ? formatCost(ccusageData.totals.totalCost) : '$0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Across all projects
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Cost"
+          description="Across all projects"
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {ccusageData?.totals ? formatCost(ccusageData.totals.totalCost) : '$0.00'}
+          </div>
+        </StatCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tokens</CardTitle>
-            <Hash className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {ccusageData?.totals ? formatTokens(ccusageData.totals.totalTokens) : '0'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              All token types combined
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Tokens"
+          description="All token types combined"
+          icon={<Hash className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {ccusageData?.totals ? formatTokens(ccusageData.totals.totalTokens) : '0'}
+          </div>
+        </StatCard>
       </div>
 
       <Card>

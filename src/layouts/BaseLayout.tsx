@@ -1,7 +1,28 @@
 import React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import DragWindowRegion from "@/components/DragWindowRegion";
+
+function SidebarWithToggle() {
+  const { state } = useSidebar();
+
+  return (
+    <>
+      <AppSidebar />
+      <div
+        className={`absolute top-2 z-50 transition-all duration-200 ${
+          state === "expanded" ? "left-43" : "left-13"
+        }`}
+      >
+        <SidebarTrigger />
+      </div>
+    </>
+  );
+}
 
 export default function BaseLayout({
   children,
@@ -12,13 +33,10 @@ export default function BaseLayout({
     <div className="flex h-screen w-screen flex-col overflow-hidden">
       <DragWindowRegion title="Ccusage" />
       <SidebarProvider defaultOpen={true}>
-        <div className="flex flex-1 overflow-hidden relative min-h-0">
-          <AppSidebar />
+        <div className="relative flex min-h-0 flex-1 overflow-hidden">
+          <SidebarWithToggle />
           <div className="flex flex-1 flex-col overflow-hidden">
-            <main className="flex-1 overflow-auto p-4 pt-8 md:p-6 md:pt-10 relative">
-              <div className="absolute top-1 left-1 z-10">
-                <SidebarTrigger />
-              </div>
+            <main className="flex-1 overflow-auto p-6 pt-4 pl-10">
               {children}
             </main>
           </div>

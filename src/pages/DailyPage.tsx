@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Database } from "lucide-react";
+import { RefreshCw, Database, DollarSign, Activity, Calendar } from "lucide-react";
 import { DailyUsageChart } from "@/renderer/components/DailyUsageChart";
+import { StatCard } from "@/renderer/components/StatCard";
 
 
 export default function DailyPage() {
@@ -82,7 +82,7 @@ export default function DailyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Daily Usage</h1>
           <p className="text-muted-foreground">View your Claude Code usage statistics by day</p>
@@ -107,86 +107,37 @@ export default function DailyPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Latest Day's Cost</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {todayData ? formatCost(todayData.totalCost) : "$0.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {todayData?.date || "No data available"}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Latest Day's Cost"
+          description={todayData?.date || "No data available"}
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {todayData ? formatCost(todayData.totalCost) : "$0.00"}
+          </div>
+        </StatCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Latest Day's Tokens</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {todayData ? formatTokens(todayData.totalTokens) : "0"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {todayData?.date ? `Tokens used on ${todayData.date}` : "No data available"}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Latest Day's Tokens"
+          description={todayData?.date ? `Tokens used on ${todayData.date}` : "No data available"}
+          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {todayData ? formatTokens(todayData.totalTokens) : "0"}
+          </div>
+        </StatCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Week Total</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {ccusageData?.daily ? formatCost(
-                ccusageData.daily.slice(-7).reduce((sum: number, day: any) => sum + day.totalCost, 0)
-              ) : "$0.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Last 7 days total
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Week Total"
+          description="Last 7 days total"
+          icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {ccusageData?.daily ? formatCost(
+              ccusageData.daily.slice(-7).reduce((sum: number, day: any) => sum + day.totalCost, 0)
+            ) : "$0.00"}
+          </div>
+        </StatCard>
       </div>
 
       <DailyUsageChart 

@@ -7,6 +7,7 @@ import { AlertCircle, TrendingUp, RefreshCw, Database } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { BlocksUsageCard } from "@/renderer/components/BlocksUsageCard";
+import { StatCard } from "@/renderer/components/StatCard";
 import { 
   format, 
   startOfMonth, 
@@ -203,7 +204,7 @@ export default function BlocksPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">5-Hour Blocks</h1>
           <p className="text-muted-foreground">View your Claude Code usage in 5-hour billing windows</p>
@@ -230,23 +231,18 @@ export default function BlocksPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <BlocksUsageCard blocksData={ccusageData} />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usage Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {averageBlocksPerDay.toFixed(1)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Blocks per day average
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Projected: {projectedTotalBlocks} blocks total
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Usage Rate"
+          description="Blocks per day average"
+          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+        >
+          <div className="text-2xl font-bold">
+            {averageBlocksPerDay.toFixed(1)}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Projected: {projectedTotalBlocks} blocks total
+          </p>
+        </StatCard>
       </div>
 
       {willExceedLimit && (
