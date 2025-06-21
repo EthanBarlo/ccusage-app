@@ -139,7 +139,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar relative flex h-full w-full min-h-0",
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar relative flex h-full min-h-0 w-full",
             className,
           )}
           {...props}
@@ -208,11 +208,13 @@ function Sidebar({
   return (
     <div
       className={cn(
-        "group peer text-sidebar-foreground hidden h-full md:flex transition-[width] duration-200 ease-linear",
+        "group peer text-sidebar-foreground hidden h-full transition-[width] duration-200 ease-linear md:flex",
         "w-(--sidebar-width)",
-        "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
+        state === "collapsed" &&
+          collapsible === "icon" &&
+          "w-(--sidebar-width-icon)",
         "group-data-[side=left]:border-r group-data-[side=right]:border-l",
-        className
+        className,
       )}
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
@@ -327,7 +329,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-footer"
       data-sidebar="footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-2", className)}
       {...props}
     />
   );
