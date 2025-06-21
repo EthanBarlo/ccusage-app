@@ -4,11 +4,20 @@ import { DataTable } from "@/components/data-table";
 import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCcusage } from "@/renderer/hooks/useCcusage";
 
 import data from "./data.json";
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function Page() {
+  const { data: ccusageData, loading, error, runCommand } = useCcusage();
+
+  useEffect(() => {
+    // Fetch initial data
+    runCommand("daily");
+  }, [runCommand]);
   return (
     <SidebarProvider
       style={
