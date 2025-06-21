@@ -1,8 +1,8 @@
 {
-  "name": "electron-shadcn",
-  "productName": "electron-shadcn Template",
+  "name": "claude-code-tracker",
+  "productName": "Claude Code Tracker",
   "version": "1.0.0",
-  "description": "Electron Forge with shadcn-ui (Vite + Typescript)",
+  "description": "Electron app to visualize Claude Code usage statistics",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
