@@ -63,7 +63,7 @@ export function SessionsPage() {
     return value.toString();
   };
 
-  if (loading) {
+  if (loading && !ccusageData) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex items-center space-x-2">

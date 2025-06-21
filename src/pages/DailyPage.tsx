@@ -55,7 +55,7 @@ export default function DailyPage() {
     return value.toString();
   };
 
-  if (loading) {
+  if (loading && !ccusageData) {
     return (
       <div className="flex items-center justify-center h-full">
         <p>Loading daily data...</p>
