@@ -213,7 +213,7 @@ function Sidebar({
         state === "collapsed" &&
           collapsible === "icon" &&
           "w-(--sidebar-width-icon)",
-        "group-data-[side=left]:border-r group-data-[side=right]:border-l",
+        side === "left" ? "border-r" : "border-l",
         className,
       )}
       data-state={state}
