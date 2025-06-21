@@ -43,10 +43,6 @@ export default function BlocksPage() {
     cacheAge
   } = useCcusage({ autoRefresh: true });
 
-  useEffect(() => {
-    runCommand("blocks");
-  }, [runCommand]);
-
   // Get billing date from localStorage
   const billingDate = useMemo(() => {
     const saved = localStorage.getItem(BILLING_DATE_KEY);
@@ -73,6 +69,13 @@ export default function BlocksPage() {
 
     return { periodStart, periodEnd };
   }, [billingDate]);
+
+  useEffect(() => {
+    const startDate = format(periodStart, 'yyyyMMdd');
+    const endDate = format(periodEnd, 'yyyyMMdd');
+    
+    runCommand(`blocks --since ${startDate} --until ${endDate}`);
+  }, [runCommand, periodStart, periodEnd]);
 
   const currentBlockData = useMemo(() => {
     if (!ccusageData?.blocks) return null;

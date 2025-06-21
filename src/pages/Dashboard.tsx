@@ -5,6 +5,7 @@ import { RefreshCw, Database, TrendingUp, Calendar } from "lucide-react";
 import { BlocksUsageCard } from "@/renderer/components/BlocksUsageCard";
 import { DailyUsageChart } from "@/renderer/components/DailyUsageChart";
 import { StatCard } from "@/renderer/components/StatCard";
+import { format } from "date-fns";
 
 const BILLING_DATE_KEY = "billing_date";
 
@@ -25,12 +26,6 @@ export default function Dashboard() {
     error: blocksError, 
     runCommand: runBlocksCommand,
   } = useCcusage({ autoRefresh: true });
-
-  useEffect(() => {
-    // Fetch all needed data
-    runDailyCommand("daily");
-    runBlocksCommand("blocks");
-  }, [runDailyCommand, runBlocksCommand]);
 
   // Get billing period dates
   const billingPeriod = useMemo(() => {
@@ -56,6 +51,15 @@ export default function Dashboard() {
     
     return { startDate, endDate, daysRemaining: Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) };
   }, []);
+
+  useEffect(() => {
+    // Fetch data for current billing period
+    const startDate = format(billingPeriod.startDate, 'yyyyMMdd');
+    const endDate = format(billingPeriod.endDate, 'yyyyMMdd');
+    
+    runDailyCommand(`daily --since ${startDate} --until ${endDate}`);
+    runBlocksCommand(`blocks --since ${startDate} --until ${endDate}`);
+  }, [runDailyCommand, runBlocksCommand, billingPeriod]);
 
   // Calculate cost this billing period
   const costThisPeriod = useMemo(() => {
