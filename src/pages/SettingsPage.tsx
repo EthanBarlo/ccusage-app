@@ -76,7 +76,7 @@ export default function SettingsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
         <p className="text-muted-foreground">
-          Configure your Claude Code Tracker preferences
+          Configure your Ccusage preferences
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
             <CardDescription>
-              Customize how Claude Code Tracker looks on your device
+              Customize how Ccusage looks on your device
             </CardDescription>
           </CardHeader>
           <CardContent>

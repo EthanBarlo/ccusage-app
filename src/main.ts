@@ -15,6 +15,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: path.join(__dirname, "../../../build-resources/icon.png"),
     webPreferences: {
       devTools: inDevelopment,
       contextIsolation: true,
@@ -45,7 +46,16 @@ async function installExtensions() {
   }
 }
 
-app.whenReady().then(createWindow).then(installExtensions);
+app.whenReady().then(() => {
+  // Set dock icon for macOS
+  if (process.platform === "darwin") {
+    const iconPath = path.join(__dirname, "../../../build-resources/icon.png");
+    app.dock.setIcon(iconPath);
+  }
+  
+  createWindow();
+  installExtensions();
+});
 
 //osX only
 app.on("window-all-closed", () => {

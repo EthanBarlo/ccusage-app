@@ -1,6 +1,6 @@
 {
   "name": "claude-code-tracker",
-  "productName": "Claude Code Tracker",
+  "productName": "Ccusage",
   "version": "1.0.0",
   "description": "Electron app to visualize Claude Code usage statistics",
   "main": ".vite/build/main.js",
