@@ -24,7 +24,14 @@ export default function DailyPage() {
   } = useCcusage({ autoRefresh: true });
 
   useEffect(() => {
-    runCommand("daily");
+    // Fetch only the last 14 days
+    const endDate = new Date();
+    const startDate = subDays(endDate, 14);
+    
+    const startDateStr = format(startDate, 'yyyyMMdd');
+    const endDateStr = format(endDate, 'yyyyMMdd');
+    
+    runCommand(`daily --since ${startDateStr} --until ${endDateStr}`);
   }, [runCommand]);
 
   const todayData = useMemo(() => {
