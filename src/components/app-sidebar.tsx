@@ -7,6 +7,7 @@ import {
   IconHelp,
   IconSettings,
   IconBoxMultiple,
+  IconActivity,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -29,6 +30,11 @@ const data = {
       url: "/",
       icon: IconDashboard,
       isActive: true,
+    },
+    {
+      title: "Active Session",
+      url: "/active",
+      icon: IconActivity,
     },
     {
       title: "Daily Usage",
