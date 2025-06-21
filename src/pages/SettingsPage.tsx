@@ -2,16 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ThemeMode } from "@/types/theme-mode";
 import { getCurrentTheme, setTheme } from "@/helpers/theme_helpers";
 import { IconMoon, IconSun, IconDeviceDesktop } from "@tabler/icons-react";
 
 const BILLING_DATE_KEY = "billing_date";
+const CUSTOM_CCUSAGE_COMMAND_KEY = "custom_ccusage_command";
 
 export default function SettingsPage() {
   const [billingDate, setBillingDate] = useState<string>("");
   const [currentTheme, setCurrentTheme] = useState<ThemeMode>("system");
+  const [customCommand, setCustomCommand] = useState<string>("");
 
   useEffect(() => {
     // Load saved billing date from localStorage
@@ -21,6 +24,14 @@ export default function SettingsPage() {
     } else {
       // Default to the 1st of the month
       setBillingDate("1");
+    }
+
+    // Load saved custom command
+    const savedCommand = localStorage.getItem(CUSTOM_CCUSAGE_COMMAND_KEY);
+    if (savedCommand) {
+      setCustomCommand(savedCommand);
+      // Sync with main process on startup
+      window.settingsApi.setSetting(CUSTOM_CCUSAGE_COMMAND_KEY, savedCommand);
     }
 
     // Load current theme
@@ -41,6 +52,20 @@ export default function SettingsPage() {
     setCurrentTheme(value);
     await setTheme(value);
     toast.success(`Theme changed to ${value}`);
+  };
+
+  const handleCustomCommandChange = async (value: string) => {
+    setCustomCommand(value);
+    if (value.trim()) {
+      localStorage.setItem(CUSTOM_CCUSAGE_COMMAND_KEY, value);
+      // Also sync with main process
+      await window.settingsApi.setSetting(CUSTOM_CCUSAGE_COMMAND_KEY, value);
+    } else {
+      localStorage.removeItem(CUSTOM_CCUSAGE_COMMAND_KEY);
+      // Also sync with main process
+      await window.settingsApi.setSetting(CUSTOM_CCUSAGE_COMMAND_KEY, null);
+    }
+    toast.success("Custom command updated successfully");
   };
 
   // Generate options for days 1-28 (to avoid issues with months that have fewer days)
@@ -125,6 +150,34 @@ export default function SettingsPage() {
                 </Select>
                 <p className="text-sm text-muted-foreground">
                   Your usage metrics will reset on the {billingDate}{billingDate === '1' ? 'st' : billingDate === '2' ? 'nd' : billingDate === '3' ? 'rd' : 'th'} of each month
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Advanced</CardTitle>
+            <CardDescription>
+              Configure advanced settings for power users
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="custom-command">Custom ccusage command</Label>
+                <Input
+                  id="custom-command"
+                  type="text"
+                  placeholder="npx ccusage@latest"
+                  value={customCommand}
+                  onChange={(e) => handleCustomCommandChange(e.target.value)}
+                  className="max-w-md"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Override the default command used to run ccusage. Leave empty to use the default "npx ccusage@latest".
+                  Examples: "npx ccusage", "/usr/local/bin/ccusage", "~/.local/bin/ccusage"
                 </p>
               </div>
             </div>

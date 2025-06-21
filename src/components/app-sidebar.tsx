@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import ccusageIcon from "@/assets/ccusage-icon.svg";
 
 const data = {
   navMain: [
@@ -70,9 +71,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconChartBar className="!size-5" />
+                <img src={ccusageIcon} alt="Ccusage" className="!size-6" />
                 <span className="text-base font-semibold">
-                  Claude Code Tracker
+                  Ccusage
                 </span>
               </a>
             </SidebarMenuButton>

@@ -1,17 +1,10 @@
 import React, { useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Database } from "lucide-react";
+import { DailyUsageChart } from "@/renderer/components/DailyUsageChart";
 
-const chartConfig = {
-  cost: {
-    label: "Cost",
-    color: "var(--chart-1)",
-  },
-} satisfies ChartConfig;
 
 export default function DailyPage() {
   const { 
@@ -196,62 +189,11 @@ export default function DailyPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily Cost Trend</CardTitle>
-          <CardDescription>Cost over the last 7 days</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
-            <LineChart 
-              accessibilityLayer
-              data={chartData}
-              margin={{ top: 20, left: 12, right: 60 }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis 
-                dataKey="date" 
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                }}
-              />
-              <YAxis 
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="line" />}
-              />
-              <Line
-                dataKey="cost"
-                type="natural"
-                stroke="var(--color-cost)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-cost)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
-              >
-                <LabelList
-                  position="top"
-                  offset={12}
-                  className="fill-foreground"
-                  fontSize={12}
-                  formatter={(value: number) => formatCost(value)}
-                />
-              </Line>
-            </LineChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      <DailyUsageChart 
+        data={chartData}
+        title="Daily Cost Trend"
+        description="Cost over the last 7 days"
+      />
     </div>
   );
 }

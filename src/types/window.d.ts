@@ -16,5 +16,9 @@ declare global {
     ccusageApi: {
       runCommand: (command: string) => Promise<any>;
     };
+    settingsApi: {
+      getSetting: (key: string) => Promise<any>;
+      setSetting: (key: string, value: any) => Promise<boolean>;
+    };
   }
 }
