@@ -1,20 +1,26 @@
 import React, { useEffect, useMemo } from "react";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Database, DollarSign, Activity, Calendar } from "lucide-react";
+import {
+  RefreshCw,
+  Database,
+  DollarSign,
+  Activity,
+  Calendar,
+} from "lucide-react";
 import { DailyUsageChart } from "@/renderer/components/DailyUsageChart";
 import { StatCard } from "@/renderer/components/StatCard";
-
+import { subDays, format } from "date-fns";
 
 export default function DailyPage() {
-  const { 
-    data: ccusageData, 
-    loading, 
-    error, 
-    runCommand, 
+  const {
+    data: ccusageData,
+    loading,
+    error,
+    runCommand,
     refresh,
     fromCache,
-    cacheAge
+    cacheAge,
   } = useCcusage({ autoRefresh: true });
 
   useEffect(() => {
@@ -23,23 +29,34 @@ export default function DailyPage() {
 
   const todayData = useMemo(() => {
     if (!ccusageData?.daily) return null;
-    const today = new Date().toISOString().substring(0, 10);
-    // First try to find today's data
-    let data = ccusageData.daily.find((d: any) => d.date === today);
-    // If no data for today, get the most recent day
-    if (!data && ccusageData.daily.length > 0) {
-      data = ccusageData.daily[ccusageData.daily.length - 1];
-    }
-    return data;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    // Only return data if it's actually from today
+    return ccusageData.daily.find((d: any) => d.date === today) || null;
   }, [ccusageData]);
 
   const chartData = useMemo(() => {
     if (!ccusageData?.daily) return [];
-    // Get last 7 days of data
-    return ccusageData.daily.slice(-7).map((day: any) => ({
-      date: day.date,
-      cost: day.totalCost,
-    }));
+
+    // Create a map of existing data
+    const dataMap = new Map<string, number>();
+    ccusageData.daily.forEach((day: any) => {
+      dataMap.set(day.date, day.totalCost);
+    });
+
+    // Generate last 14 days
+    const data = [];
+    const today = new Date();
+
+    for (let i = 13; i >= 0; i--) {
+      const date = subDays(today, i);
+      const dateStr = format(date, "yyyy-MM-dd");
+      data.push({
+        date: dateStr,
+        cost: dataMap.get(dateStr) || 0,
+      });
+    }
+
+    return data;
   }, [ccusageData]);
 
   const formatCost = (value: number) => {
@@ -57,16 +74,16 @@ export default function DailyPage() {
 
   if (loading && !ccusageData) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <p>Loading daily data...</p>
       </div>
     );
   }
-  
+
   // Debug: Show raw data structure
   if (!ccusageData) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <p>No data received from ccusage</p>
       </div>
     );
@@ -74,7 +91,7 @@ export default function DailyPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <p className="text-red-500">Error: {error}</p>
       </div>
     );
@@ -82,14 +99,16 @@ export default function DailyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Daily Usage</h1>
-          <p className="text-muted-foreground">View your Claude Code usage statistics by day</p>
+          <p className="text-muted-foreground">
+            View your Claude Code usage statistics by day
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {fromCache && (
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-1 text-sm">
               <Database className="h-4 w-4" />
               <span>Cached {cacheAge}</span>
             </div>
@@ -100,7 +119,9 @@ export default function DailyPage() {
             size="sm"
             variant="outline"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
@@ -108,9 +129,9 @@ export default function DailyPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          title="Latest Day's Cost"
-          description={todayData?.date || "No data available"}
-          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+          title="Today's Cost"
+          description={format(new Date(), 'MMM d, yyyy')}
+          icon={<DollarSign className="text-muted-foreground h-4 w-4" />}
         >
           <div className="text-2xl font-bold">
             {todayData ? formatCost(todayData.totalCost) : "$0.00"}
@@ -118,9 +139,9 @@ export default function DailyPage() {
         </StatCard>
 
         <StatCard
-          title="Latest Day's Tokens"
-          description={todayData?.date ? `Tokens used on ${todayData.date}` : "No data available"}
-          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+          title="Today's Tokens"
+          description={todayData ? "Tokens used today" : "No usage today"}
+          icon={<Activity className="text-muted-foreground h-4 w-4" />}
         >
           <div className="text-2xl font-bold">
             {todayData ? formatTokens(todayData.totalTokens) : "0"}
@@ -128,22 +149,22 @@ export default function DailyPage() {
         </StatCard>
 
         <StatCard
-          title="Week Total"
+          title="This Week Total"
           description="Last 7 days total"
-          icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
+          icon={<Calendar className="text-muted-foreground h-4 w-4" />}
         >
           <div className="text-2xl font-bold">
-            {ccusageData?.daily ? formatCost(
-              ccusageData.daily.slice(-7).reduce((sum: number, day: any) => sum + day.totalCost, 0)
-            ) : "$0.00"}
+            {formatCost(
+              chartData.slice(-7).reduce((sum, day) => sum + day.cost, 0),
+            )}
           </div>
         </StatCard>
       </div>
 
-      <DailyUsageChart 
+      <DailyUsageChart
         data={chartData}
         title="Daily Cost Trend"
-        description="Cost over the last 7 days"
+        description="Cost over the last 14 days"
       />
     </div>
   );
