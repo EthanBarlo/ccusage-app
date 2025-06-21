@@ -6,15 +6,15 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
-        appName: "electron-shadcn",
-        titleHomePage: "Home Page",
+        appName: "Claude Code Tracker",
+        titleHomePage: "Usage Statistics",
         titleSecondPage: "Second Page",
       },
     },
     "pt-BR": {
       translation: {
-        appName: "electron-shadcn",
-        titleHomePage: "Página Inicial",
+        appName: "Claude Code Tracker",
+        titleHomePage: "Estatísticas de Uso",
         titleSecondPage: "Segunda Página",
       },
     },
