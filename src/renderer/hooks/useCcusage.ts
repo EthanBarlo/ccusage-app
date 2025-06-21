@@ -1,18 +1,63 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { dataManager } from "@/renderer/lib/dataManager";
 
-export function useCcusage() {
+type CommandType = 'daily' | 'monthly' | 'session' | 'blocks';
+
+interface UseCcusageOptions {
+  autoRefresh?: boolean;
+  refreshInterval?: number;
+  ttl?: number;
+}
+
+export function useCcusage(options: UseCcusageOptions = {}) {
+  const {
+    autoRefresh = false,
+    refreshInterval = 5 * 60 * 1000, // 5 minutes
+    ttl = 5 * 60 * 1000, // 5 minutes cache TTL
+  } = options;
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fromCache, setFromCache] = useState(false);
+  const [cacheAge, setCacheAge] = useState<string>('');
+  const [currentCommand, setCurrentCommand] = useState<CommandType | null>(null);
 
-  const runCommand = useCallback(async (command: string) => {
+  const runCommand = useCallback(async (command: string, forceRefresh = false) => {
+    // Validate command type
+    const commandType = command as CommandType;
+    if (!['daily', 'monthly', 'session', 'blocks'].includes(commandType)) {
+      setError(`Invalid command: ${command}`);
+      return;
+    }
+
     setLoading(true);
     setError(null);
+    setCurrentCommand(commandType);
     
     try {
-      const result = await window.ccusageApi.runCommand(command);
-      setData(result);
-      return result;
+      const result = await dataManager.getData(commandType, { 
+        force: forceRefresh,
+        ttl 
+      });
+      
+      console.log(`useCcusage: ${command} data:`, result.data);
+      setData(result.data);
+      setFromCache(result.fromCache);
+      
+      // Format cache age
+      if (result.age !== null) {
+        const status = dataManager.getCacheStatus(commandType, ttl);
+        setCacheAge(status.ageFormatted);
+      } else {
+        setCacheAge('');
+      }
+      
+      if (result.error && !result.data) {
+        setError(result.error);
+      }
+      
+      return result.data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);
@@ -20,6 +65,32 @@ export function useCcusage() {
     } finally {
       setLoading(false);
     }
+  }, [ttl]);
+
+  const refresh = useCallback(async () => {
+    if (currentCommand) {
+      return runCommand(currentCommand, true);
+    }
+  }, [currentCommand, runCommand]);
+
+  // Set up auto-refresh if enabled
+  useEffect(() => {
+    if (autoRefresh && currentCommand) {
+      dataManager.startBackgroundRefresh(currentCommand, refreshInterval);
+      
+      return () => {
+        dataManager.stopBackgroundRefresh(currentCommand);
+      };
+    }
+  }, [autoRefresh, currentCommand, refreshInterval]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (currentCommand) {
+        dataManager.stopBackgroundRefresh(currentCommand);
+      }
+    };
   }, []);
 
   return {
@@ -27,5 +98,8 @@ export function useCcusage() {
     loading,
     error,
     runCommand,
+    refresh,
+    fromCache,
+    cacheAge,
   };
 }
