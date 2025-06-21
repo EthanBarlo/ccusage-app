@@ -3,11 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { ThemeMode } from "@/types/theme-mode";
+import { getCurrentTheme, setTheme } from "@/helpers/theme_helpers";
+import { IconMoon, IconSun, IconDeviceDesktop } from "@tabler/icons-react";
 
 const BILLING_DATE_KEY = "billing_date";
 
 export default function SettingsPage() {
   const [billingDate, setBillingDate] = useState<string>("");
+  const [currentTheme, setCurrentTheme] = useState<ThemeMode>("system");
 
   useEffect(() => {
     // Load saved billing date from localStorage
@@ -18,12 +22,25 @@ export default function SettingsPage() {
       // Default to the 1st of the month
       setBillingDate("1");
     }
+
+    // Load current theme
+    const loadTheme = async () => {
+      const { local } = await getCurrentTheme();
+      setCurrentTheme(local || "system");
+    };
+    loadTheme();
   }, []);
 
   const handleBillingDateChange = (value: string) => {
     setBillingDate(value);
     localStorage.setItem(BILLING_DATE_KEY, value);
     toast.success("Billing date updated successfully");
+  };
+
+  const handleThemeChange = async (value: ThemeMode) => {
+    setCurrentTheme(value);
+    await setTheme(value);
+    toast.success(`Theme changed to ${value}`);
   };
 
   // Generate options for days 1-28 (to avoid issues with months that have fewer days)
@@ -39,6 +56,50 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>
+              Customize how Claude Code Tracker looks on your device
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="theme">Theme</Label>
+                <Select value={currentTheme} onValueChange={handleThemeChange}>
+                  <SelectTrigger id="theme" className="w-[240px]">
+                    <SelectValue placeholder="Select a theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">
+                      <div className="flex items-center gap-2">
+                        <IconSun className="h-4 w-4" />
+                        <span>Light</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      <div className="flex items-center gap-2">
+                        <IconMoon className="h-4 w-4" />
+                        <span>Dark</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="system">
+                      <div className="flex items-center gap-2">
+                        <IconDeviceDesktop className="h-4 w-4" />
+                        <span>System</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  Select your preferred theme or use your system settings
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Billing Cycle</CardTitle>

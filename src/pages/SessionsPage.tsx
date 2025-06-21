@@ -140,7 +140,7 @@ export function SessionsPage() {
               data={chartData}
               layout="vertical"
               margin={{
-                right: 16,
+                right: 30,
               }}
             >
               <CartesianGrid horizontal={false} />
@@ -168,7 +168,7 @@ export function SessionsPage() {
                   dataKey="project"
                   position="insideLeft"
                   offset={8}
-                  className="fill-[--background]"
+                  className="fill-white"
                   fontSize={12}
                 />
                 <LabelList
