@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCcusage } from '@/renderer/hooks/useCcusage';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, FolderOpen, DollarSign, Hash, RefreshCw, Database } from 'lucide-react';
+import { Loader2, FolderOpen, DollarSign, Hash, RefreshCw, Database, Pencil, Check, X } from 'lucide-react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/renderer/components/StatCard';
+import { Input } from '@/components/ui/input';
+import { sessionNames } from '@/renderer/lib/sessionNames';
 
 const chartConfig = {
   cost: {
@@ -26,6 +28,9 @@ export function SessionsPage() {
     cacheAge
   } = useCcusage({ autoRefresh: true });
 
+  const [editingSession, setEditingSession] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+
   useEffect(() => {
     runCommand('session');
   }, [runCommand]);
@@ -35,9 +40,7 @@ export function SessionsPage() {
     
     return ccusageData.sessions
       .map((session: any) => {
-        // Extract project name from sessionId
-        const pathParts = session.sessionId.split('-');
-        const projectName = pathParts[pathParts.length - 1] || 'Unknown';
+        const projectName = sessionNames.getDisplayName(session.sessionId);
         
         return {
           project: projectName,
@@ -61,6 +64,35 @@ export function SessionsPage() {
       return `${(value / 1000).toFixed(1)}K`;
     }
     return value.toString();
+  };
+
+  const startEditing = (sessionId: string) => {
+    const currentName = sessionNames.getDisplayName(sessionId);
+    setEditingSession(sessionId);
+    setEditingName(currentName);
+  };
+
+  const saveEdit = () => {
+    if (editingSession && editingName.trim()) {
+      sessionNames.setName(editingSession, editingName);
+      setEditingSession(null);
+      setEditingName('');
+      // Force re-render
+      runCommand('session');
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingSession(null);
+    setEditingName('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
   };
 
   if (loading && !ccusageData) {
@@ -207,13 +239,53 @@ export function SessionsPage() {
         <CardContent>
           <div className="space-y-4">
             {ccusageData?.sessions?.map((session: any, index: number) => {
-              const pathParts = session.sessionId.split('-');
-              const projectName = pathParts[pathParts.length - 1] || 'Unknown';
+              const displayName = sessionNames.getDisplayName(session.sessionId);
+              const isEditing = editingSession === session.sessionId;
               
               return (
-                <div key={index} className="flex items-center justify-between border-b pb-4 last:border-0">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{projectName}</p>
+                <div key={index} className="flex items-center justify-between border-b pb-4 last:border-0 group">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      {isEditing ? (
+                        <>
+                          <Input
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            className="h-6 text-sm font-medium max-w-xs"
+                            autoFocus
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={saveEdit}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Check className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={cancelEdit}
+                            className="h-6 w-6 p-0"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium">{displayName}</p>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEditing(session.sessionId)}
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">{session.sessionId}</p>
                     <div className="flex gap-4 text-xs text-muted-foreground">
                       <span>Last active: {session.lastActivity}</span>
