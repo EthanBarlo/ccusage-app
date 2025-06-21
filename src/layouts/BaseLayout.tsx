@@ -13,11 +13,13 @@ export default function BaseLayout({
     <div className="flex h-screen w-screen flex-col overflow-hidden">
       <DragWindowRegion title="Claude Code Tracker" />
       <SidebarProvider defaultOpen={true}>
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden relative min-h-0">
           <AppSidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <SiteHeader />
-            <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
+            <main className="flex-1 overflow-auto p-4 md:p-6">
+              {children}
+            </main>
           </div>
         </div>
       </SidebarProvider>
