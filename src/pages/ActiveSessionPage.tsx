@@ -102,7 +102,7 @@ export default function ActiveSessionPage() {
     return Math.min(100, Math.max(0, elapsed));
   }, [activeBlock]);
 
-  if (loading) {
+  if (loading && !blocksData) {
     return (
       <div className="flex h-full items-center justify-center">
         <p>Loading active session data...</p>

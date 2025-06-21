@@ -186,7 +186,7 @@ export default function BlocksPage() {
     return format(parseISO(dateString), "MMM d, h:mm a");
   };
 
-  if (loading) {
+  if (loading && !ccusageData) {
     return (
       <div className="flex items-center justify-center h-full">
         <p>Loading blocks data...</p>

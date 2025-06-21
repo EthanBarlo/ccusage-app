@@ -109,7 +109,7 @@ export default function Dashboard() {
   const loading = dailyLoading || blocksLoading;
   const error = dailyError || blocksError;
 
-  if (loading && !dailyData) {
+  if ((dailyLoading || blocksLoading) && !dailyData && !blocksData) {
     return (
       <div className="flex items-center justify-center h-full">
         <p>Loading dashboard data...</p>
