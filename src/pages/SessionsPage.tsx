@@ -1,14 +1,46 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCcusage } from '@/renderer/hooks/useCcusage';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, FolderOpen, DollarSign, Hash, RefreshCw, Database, Pencil, Check, X } from 'lucide-react';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from 'recharts';
-import { Button } from '@/components/ui/button';
-import { StatCard } from '@/renderer/components/StatCard';
-import { Input } from '@/components/ui/input';
-import { sessionNames } from '@/renderer/lib/sessionNames';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useCcusage } from "@/renderer/hooks/useCcusage";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Loader2,
+  FolderOpen,
+  DollarSign,
+  Hash,
+  RefreshCw,
+  Database,
+  Pencil,
+  Check,
+  X,
+  Calendar,
+  Coins,
+} from "lucide-react";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  LabelList,
+} from "recharts";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/renderer/components/StatCard";
+import { Input } from "@/components/ui/input";
+import { sessionNames } from "@/renderer/lib/sessionNames";
+import { formatDistanceToNow, parseISO } from "date-fns";
 
 const chartConfig = {
   cost: {
@@ -18,30 +50,30 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function SessionsPage() {
-  const { 
-    data: ccusageData, 
-    loading, 
-    error, 
+  const {
+    data: ccusageData,
+    loading,
+    error,
     runCommand,
     refresh,
     fromCache,
-    cacheAge
+    cacheAge,
   } = useCcusage({ autoRefresh: true });
 
   const [editingSession, setEditingSession] = useState<string | null>(null);
-  const [editingName, setEditingName] = useState('');
+  const [editingName, setEditingName] = useState("");
 
   useEffect(() => {
-    runCommand('session');
+    runCommand("session");
   }, [runCommand]);
 
   const chartData = useMemo(() => {
     if (!ccusageData?.sessions) return [];
-    
+
     return ccusageData.sessions
       .map((session: any) => {
         const projectName = sessionNames.getDisplayName(session.sessionId);
-        
+
         return {
           project: projectName,
           cost: session.totalCost,
@@ -51,6 +83,18 @@ export function SessionsPage() {
       })
       .sort((a: any, b: any) => b.cost - a.cost) // Sort by cost descending
       .slice(0, 10); // Show top 10 projects
+  }, [ccusageData]);
+
+  // Sort sessions by last activity for the cards view
+  const sortedSessions = useMemo(() => {
+    if (!ccusageData?.sessions) return [];
+
+    return [...ccusageData.sessions].sort((a: any, b: any) => {
+      // Sort by lastActivity date in descending order (most recent first)
+      return (
+        new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
+      );
+    });
   }, [ccusageData]);
 
   const formatCost = (value: number) => {
@@ -76,28 +120,28 @@ export function SessionsPage() {
     if (editingSession && editingName.trim()) {
       sessionNames.setName(editingSession, editingName);
       setEditingSession(null);
-      setEditingName('');
+      setEditingName("");
       // Force re-render
-      runCommand('session');
+      runCommand("session");
     }
   };
 
   const cancelEdit = () => {
     setEditingSession(null);
-    setEditingName('');
+    setEditingName("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       saveEdit();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       cancelEdit();
     }
   };
 
   if (loading && !ccusageData) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
           <p>Loading session data...</p>
@@ -110,7 +154,9 @@ export function SessionsPage() {
     return (
       <div className="container mx-auto p-6">
         <Alert variant="destructive">
-          <AlertDescription>Error loading session data: {error}</AlertDescription>
+          <AlertDescription>
+            Error loading session data: {error}
+          </AlertDescription>
         </Alert>
       </div>
     );
@@ -118,14 +164,14 @@ export function SessionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
           <p className="text-muted-foreground">Usage breakdown by project</p>
         </div>
         <div className="flex items-center gap-2">
           {fromCache && (
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-1 text-sm">
               <Database className="h-4 w-4" />
               <span>Cached {cacheAge}</span>
             </div>
@@ -136,12 +182,13 @@ export function SessionsPage() {
             size="sm"
             variant="outline"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
       </div>
-
 
       <Card>
         <CardHeader>
@@ -205,74 +252,132 @@ export function SessionsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>All Projects</CardTitle>
-              <CardDescription>Detailed breakdown of all projects</CardDescription>
+              <CardDescription>
+                Detailed breakdown of all projects
+              </CardDescription>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               {ccusageData?.sessions?.length || 0} projects
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {ccusageData?.sessions?.map((session: any, index: number) => {
-              const displayName = sessionNames.getDisplayName(session.sessionId);
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {sortedSessions.map((session: any, index: number) => {
+              const displayName = sessionNames.getDisplayName(
+                session.sessionId,
+              );
               const isEditing = editingSession === session.sessionId;
-              
+
               return (
-                <div key={index} className="flex items-center justify-between border-b pb-4 last:border-0 group">
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
+                <Card
+                  key={index}
+                  className="group relative gap-0 overflow-hidden"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2">
                       {isEditing ? (
-                        <>
+                        <div className="flex flex-1 items-center gap-2">
                           <Input
                             value={editingName}
                             onChange={(e) => setEditingName(e.target.value)}
                             onKeyDown={handleKeyPress}
-                            className="h-6 text-sm font-medium max-w-xs"
+                            className="h-8 text-sm font-semibold"
                             autoFocus
                           />
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={saveEdit}
-                            className="h-6 w-6 p-0"
+                            className="h-8 w-8 p-0"
                           >
-                            <Check className="h-3 w-3" />
+                            <Check className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={cancelEdit}
-                            className="h-6 w-6 p-0"
+                            className="h-8 w-8 p-0"
                           >
-                            <X className="h-3 w-3" />
+                            <X className="h-4 w-4" />
                           </Button>
-                        </>
+                        </div>
                       ) : (
                         <>
-                          <p className="text-sm font-medium">{displayName}</p>
+                          <h3 className="flex-1 text-lg leading-none font-semibold tracking-tight">
+                            {displayName}
+                          </h3>
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => startEditing(session.sessionId)}
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-8 w-8 -translate-y-2 p-0 opacity-0 transition-opacity group-hover:opacity-100"
                           >
-                            <Pencil className="h-3 w-3" />
+                            <Pencil className="h-4 w-4" />
                           </Button>
                         </>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{session.sessionId}</p>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
-                      <span>Last active: {session.lastActivity}</span>
-                      <span>Models: {session.modelsUsed.join(', ')}</span>
+                  </CardHeader>
+                  <CardContent>
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                          <DollarSign className="h-4 w-4" />
+                          <span>Cost</span>
+                        </div>
+                        <span className="font-semibold">
+                          {formatCost(session.totalCost)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                          <Coins className="h-4 w-4" />
+                          <span>Tokens</span>
+                        </div>
+                        <span className="font-semibold">
+                          {formatTokens(session.totalTokens)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                          <Calendar className="h-4 w-4" />
+                          <span>Last used</span>
+                        </div>
+                        <span className="text-sm">
+                          {(() => {
+                            const date = parseISO(session.lastActivity);
+                            const now = new Date();
+                            const diffInDays = Math.floor(
+                              (now.getTime() - date.getTime()) /
+                                (1000 * 60 * 60 * 24),
+                            );
+
+                            if (diffInDays === 0) {
+                              return "Today";
+                            } else if (diffInDays === 1) {
+                              return "Yesterday";
+                            } else {
+                              return formatDistanceToNow(date, {
+                                addSuffix: true,
+                              });
+                            }
+                          })()}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{formatCost(session.totalCost)}</p>
-                    <p className="text-xs text-muted-foreground">{formatTokens(session.totalTokens)} tokens</p>
-                  </div>
-                </div>
+                  </CardContent>
+                  <CardFooter className="pt-2">
+                    <p
+                      className="text-muted-foreground truncate text-xs"
+                      title={session.sessionId}
+                    >
+                      {session.sessionId}
+                    </p>
+                  </CardFooter>
+                </Card>
               );
             })}
           </div>
