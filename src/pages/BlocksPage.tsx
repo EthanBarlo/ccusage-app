@@ -2,14 +2,33 @@ import React, { useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ReferenceLine } from "recharts";
+import { Progress } from "@/components/ui/progress";
+import { AlertCircle, TrendingUp, Package } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { 
+  format, 
+  startOfMonth, 
+  endOfMonth, 
+  addMonths, 
+  subMonths,
+  eachDayOfInterval,
+  isAfter,
+  isSameDay,
+  differenceInDays,
+  addDays,
+  parseISO
+} from "date-fns";
 
 const chartConfig = {
-  cost: {
-    label: "Cost",
+  blocks: {
+    label: "Blocks",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
+
+const BLOCKS_PER_PERIOD = 50;
+const BILLING_DATE_KEY = "billing_date";
 
 export default function BlocksPage() {
   const { data: ccusageData, loading, error, runCommand } = useCcusage();
@@ -17,6 +36,33 @@ export default function BlocksPage() {
   useEffect(() => {
     runCommand("blocks");
   }, [runCommand]);
+
+  // Get billing date from localStorage
+  const billingDate = useMemo(() => {
+    const saved = localStorage.getItem(BILLING_DATE_KEY);
+    return saved ? parseInt(saved) : 1;
+  }, []);
+
+  // Calculate current billing period dates
+  const { periodStart, periodEnd } = useMemo(() => {
+    const now = new Date();
+    const currentDay = now.getDate();
+
+    let periodStart: Date;
+    let periodEnd: Date;
+
+    if (currentDay >= billingDate) {
+      // We're in the current billing period
+      periodStart = new Date(now.getFullYear(), now.getMonth(), billingDate);
+      periodEnd = addMonths(periodStart, 1);
+    } else {
+      // We're in the previous month's billing period
+      periodEnd = new Date(now.getFullYear(), now.getMonth(), billingDate);
+      periodStart = subMonths(periodEnd, 1);
+    }
+
+    return { periodStart, periodEnd };
+  }, [billingDate]);
 
   const currentBlockData = useMemo(() => {
     if (!ccusageData?.blocks) return null;
@@ -28,15 +74,80 @@ export default function BlocksPage() {
     return null;
   }, [ccusageData]);
 
+  // Calculate blocks used in current billing period
+  const blocksInCurrentPeriod = useMemo(() => {
+    if (!ccusageData?.blocks) return 0;
+    
+    return ccusageData.blocks.filter((block: any) => {
+      if (block.isGap) return false;
+      const blockDate = parseISO(block.startTime);
+      return blockDate >= periodStart && blockDate < periodEnd;
+    }).length;
+  }, [ccusageData, periodStart, periodEnd]);
+
+  const blocksRemaining = BLOCKS_PER_PERIOD - blocksInCurrentPeriod;
+  const blocksUsagePercentage = (blocksInCurrentPeriod / BLOCKS_PER_PERIOD) * 100;
+
+  // Calculate average blocks per day and projection
+  const { averageBlocksPerDay, projectedTotalBlocks, willExceedLimit } = useMemo(() => {
+    if (!ccusageData?.blocks || blocksInCurrentPeriod === 0) {
+      return { averageBlocksPerDay: 0, projectedTotalBlocks: 0, willExceedLimit: false };
+    }
+
+    const now = new Date();
+    const daysElapsed = Math.max(1, differenceInDays(now, periodStart) + 1);
+    const daysInPeriod = differenceInDays(periodEnd, periodStart);
+    
+    const averageBlocksPerDay = blocksInCurrentPeriod / daysElapsed;
+    const projectedTotalBlocks = Math.round(averageBlocksPerDay * daysInPeriod);
+    const willExceedLimit = projectedTotalBlocks > BLOCKS_PER_PERIOD;
+
+    return { averageBlocksPerDay, projectedTotalBlocks, willExceedLimit };
+  }, [ccusageData, blocksInCurrentPeriod, periodStart, periodEnd]);
+
   const chartData = useMemo(() => {
-    if (!ccusageData?.blocks) return [];
-    // Get last 10 non-gap blocks for the chart
-    const nonGapBlocks = ccusageData.blocks.filter((block: any) => !block.isGap);
-    return nonGapBlocks.slice(-10).map((block: any) => ({
-      blockStart: block.startTime,
-      cost: block.costUSD,
-    }));
-  }, [ccusageData]);
+    // If no data, return minimal chart data
+    if (!ccusageData?.blocks) {
+      return [{
+        date: periodStart.toISOString(),
+        blocks: 0,
+      }, {
+        date: periodEnd.toISOString(),
+        blocks: 0,
+      }];
+    }
+    
+    // Get blocks from current billing period
+    const periodBlocks = ccusageData.blocks.filter((block: any) => {
+      if (block.isGap) return false;
+      const blockDate = parseISO(block.startTime);
+      return blockDate >= periodStart && blockDate < periodEnd;
+    }).sort((a: any, b: any) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime());
+    
+    // Create a map of blocks per day
+    const blocksByDay = new Map<string, number>();
+    periodBlocks.forEach((block: any) => {
+      const date = format(parseISO(block.startTime), 'yyyy-MM-dd');
+      blocksByDay.set(date, (blocksByDay.get(date) || 0) + 1);
+    });
+    
+    // Generate data for every day in the period using date-fns
+    const days = eachDayOfInterval({ start: periodStart, end: periodEnd });
+    let cumulativeCount = 0;
+    
+    const dailyData = days.map(day => {
+      const dateStr = format(day, 'yyyy-MM-dd');
+      const blocksToday = blocksByDay.get(dateStr) || 0;
+      cumulativeCount += blocksToday;
+      
+      return {
+        date: day.toISOString(),
+        blocks: cumulativeCount,
+      };
+    });
+    
+    return dailyData;
+  }, [ccusageData, periodStart, periodEnd]);
 
   const formatCost = (value: number) => {
     return `$${value.toFixed(2)}`;
@@ -51,14 +162,18 @@ export default function BlocksPage() {
     return value.toString();
   };
 
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
   const formatBlockTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", { 
-      month: "short", 
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit"
-    });
+    return format(parseISO(dateString), "MMM d, h:mm a");
   };
 
   if (loading) {
@@ -84,157 +199,122 @@ export default function BlocksPage() {
         <p className="text-muted-foreground">View your Claude Code usage in 5-hour billing windows</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Current Block Cost
-              {currentBlockData?.isActive && (
-                <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-                  Active
-                </span>
-              )}
-            </CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
+            <CardTitle className="text-sm font-medium">Blocks Used</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {currentBlockData ? formatCost(currentBlockData.costUSD) : "$0.00"}
+              {blocksInCurrentPeriod} / {BLOCKS_PER_PERIOD}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {currentBlockData ? formatBlockTime(currentBlockData.startTime) : "No data"}
+            <Progress value={blocksUsagePercentage} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">
+              {blocksRemaining} blocks remaining
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Block Tokens</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
+            <CardTitle className="text-sm font-medium">Usage Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {currentBlockData ? formatTokens(currentBlockData.totalTokens) : "0"}
+              {averageBlocksPerDay.toFixed(1)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Tokens used in current block
+              Blocks per day average
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Blocks This Month</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-              <line x1="16" x2="16" y1="2" y2="6" />
-              <line x1="8" x2="8" y1="2" y2="6" />
-              <line x1="3" x2="21" y1="10" y2="10" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {ccusageData?.blocks
-                ? ccusageData.blocks.filter((block: any) => {
-                    if (block.isGap) return false;
-                    const blockMonth = new Date(block.startTime).toISOString().substring(0, 7);
-                    const currentMonth = new Date().toISOString().substring(0, 7);
-                    return blockMonth === currentMonth;
-                  }).length
-                : 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Active blocks in {new Date().toLocaleDateString("en-US", { month: "long" })}
+            <p className="text-xs text-muted-foreground mt-1">
+              Projected: {projectedTotalBlocks} blocks total
             </p>
           </CardContent>
         </Card>
       </div>
 
+      {willExceedLimit && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            At your current usage rate, you're projected to use {projectedTotalBlocks} blocks 
+            by the end of this billing period, exceeding your {BLOCKS_PER_PERIOD} block limit.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle>Block Cost Trend</CardTitle>
-          <CardDescription>Cost per 5-hour block over time</CardDescription>
+          <CardTitle>Block Usage - Current Billing Period</CardTitle>
+          <CardDescription>
+            {format(periodStart, 'MM/dd/yyyy')} - {format(periodEnd, 'MM/dd/yyyy')} • Resets on the {billingDate}{getOrdinalSuffix(billingDate)} of each month
+          </CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
-            <LineChart 
-              accessibilityLayer
-              data={chartData}
-              margin={{ top: 20, left: 12, right: 60 }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis 
-                dataKey="blockStart" 
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                }}
-              />
-              <YAxis 
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="line" />}
-              />
-              <Line
-                dataKey="cost"
-                type="natural"
-                stroke="var(--color-cost)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-cost)",
-                }}
-                activeDot={{
-                  r: 6,
+        <CardContent>
+          {chartData.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-[200px] w-full">
+              <AreaChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                  top: 12,
+                  bottom: 12,
                 }}
               >
-                <LabelList
-                  position="top"
-                  offset={12}
-                  className="fill-foreground"
-                  fontSize={12}
-                  formatter={(value: number) => formatCost(value)}
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  interval="preserveStartEnd"
+                  minTickGap={50}
+                  tickFormatter={(value) => {
+                    return format(parseISO(value), "MMM d");
+                  }}
                 />
-              </Line>
-            </LineChart>
-          </ChartContainer>
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  domain={[0, BLOCKS_PER_PERIOD]}
+                  ticks={[0, 10, 20, 30, 40, 50]}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <defs>
+                  <linearGradient id="blockGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-blocks)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--color-blocks)" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <Area
+                  dataKey="blocks"
+                  type="stepAfter"
+                  fill="var(--color-blocks)"
+                  fillOpacity={0.3}
+                  stroke="var(--color-blocks)"
+                  strokeWidth={2}
+                />
+                {/* Add a reference line for today */}
+                <ReferenceLine 
+                  x={new Date().toISOString()} 
+                  stroke="var(--muted-foreground)" 
+                  strokeDasharray="3 3"
+                  opacity={0.5}
+                />
+              </AreaChart>
+            </ChartContainer>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+              No data available for this period
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

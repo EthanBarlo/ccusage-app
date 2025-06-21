@@ -9,7 +9,10 @@
       "mcp__shadcn-ui-server__search_components",
       "mcp__shadcn-ui-server__list_shadcn_components",
       "Bash(npm run type-check:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__shadcn-ui-server__get_component_details",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs"
     ],
     "deny": []
   }

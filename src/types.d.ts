@@ -11,6 +11,7 @@ interface ThemeModeContext {
   light: () => Promise<void>;
   system: () => Promise<boolean>;
   current: () => Promise<"dark" | "light" | "system">;
+  isDark: () => Promise<boolean>;
 }
 interface ElectronWindow {
   minimize: () => Promise<void>;
