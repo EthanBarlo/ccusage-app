@@ -120,7 +120,7 @@ export function SessionsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
           <p className="text-muted-foreground">Usage breakdown by project</p>
         </div>
         <div className="flex items-center gap-2">
@@ -142,37 +142,6 @@ export function SessionsPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard
-          title="Total Projects"
-          description="Active project sessions"
-          icon={<FolderOpen className="h-4 w-4 text-muted-foreground" />}
-        >
-          <div className="text-2xl font-bold">
-            {ccusageData?.sessions?.length || 0}
-          </div>
-        </StatCard>
-
-        <StatCard
-          title="Total Cost"
-          description="Across all projects"
-          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-        >
-          <div className="text-2xl font-bold">
-            {ccusageData?.totals ? formatCost(ccusageData.totals.totalCost) : '$0.00'}
-          </div>
-        </StatCard>
-
-        <StatCard
-          title="Total Tokens"
-          description="All token types combined"
-          icon={<Hash className="h-4 w-4 text-muted-foreground" />}
-        >
-          <div className="text-2xl font-bold">
-            {ccusageData?.totals ? formatTokens(ccusageData.totals.totalTokens) : '0'}
-          </div>
-        </StatCard>
-      </div>
 
       <Card>
         <CardHeader>
@@ -233,8 +202,15 @@ export function SessionsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Sessions</CardTitle>
-          <CardDescription>Detailed breakdown of all project sessions</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>All Projects</CardTitle>
+              <CardDescription>Detailed breakdown of all projects</CardDescription>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {ccusageData?.sessions?.length || 0} projects
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
