@@ -41,7 +41,7 @@ const data = {
     },
     {
       title: "Sessions",
-      url: "#sessions",
+      url: "/sessions",
       icon: IconClock,
     },
     {
@@ -53,7 +53,7 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#settings",
+      url: "/settings",
       icon: IconSettings,
     },
   ],

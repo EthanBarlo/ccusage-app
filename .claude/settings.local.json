@@ -3,7 +3,13 @@
     "allow": [
       "Bash(find:*)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)",
+      "mcp__shadcn-ui-server__search_components",
+      "mcp__shadcn-ui-server__list_shadcn_components",
+      "Bash(npm run type-check:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
