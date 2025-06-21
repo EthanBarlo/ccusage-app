@@ -47,7 +47,7 @@ const data = {
       icon: IconChartBar,
     },
     {
-      title: "Sessions",
+      title: "Projects",
       url: "/sessions",
       icon: IconClock,
     },
