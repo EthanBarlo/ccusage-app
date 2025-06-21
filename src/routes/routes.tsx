@@ -4,6 +4,7 @@ import HomePage from "../pages/HomePage";
 import SecondPage from "@/pages/SecondPage";
 import MonthlyPage from "@/pages/MonthlyPage";
 import DailyPage from "@/pages/DailyPage";
+import BlocksPage from "@/pages/BlocksPage";
 
 // TODO: Steps to add a new route:
 // 1. Create a new page component in the '../pages/' directory (e.g., NewPage.tsx)
@@ -48,4 +49,10 @@ export const DailyRoute = createRoute({
   component: DailyPage,
 });
 
-export const rootTree = RootRoute.addChildren([HomeRoute, SecondPageRoute, MonthlyRoute, DailyRoute]);
+export const BlocksRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/blocks",
+  component: BlocksPage,
+});
+
+export const rootTree = RootRoute.addChildren([HomeRoute, SecondPageRoute, MonthlyRoute, DailyRoute, BlocksRoute]);

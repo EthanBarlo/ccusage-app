@@ -46,7 +46,7 @@ const data = {
     },
     {
       title: "5-Hour Blocks",
-      url: "#blocks",
+      url: "/blocks",
       icon: IconBoxMultiple,
     },
   ],
