@@ -37,6 +37,23 @@ Direct links for v1.0.1:
 - **Linux (DEB, amd64)** – [ccusage_1.0.1_amd64.deb](https://github.com/EthanBarlo/ccusage-app/releases/download/v1.0.1/ccusage_1.0.1_amd64.deb)
 - **Linux (RPM, x86_64)** – [ccusage-1.0.1-1.x86_64.rpm](https://github.com/EthanBarlo/ccusage-app/releases/download/v1.0.1/ccusage-1.0.1-1.x86_64.rpm)
 
+---
+
+### Unsigned builds & security warnings
+
+These artifacts are **not** code-signed.
+
+- **macOS** – Gatekeeper may say “is damaged and can’t be opened”.
+  1. Right-click → Open once, _or_
+  2. Remove the quarantine flag:
+     ```bash
+     xattr -dr com.apple.quarantine /path/to/Ccusage.app
+     ```
+- **Windows** – SmartScreen will show “unrecognized app”. Click “More info → Run anyway”.
+- **Linux** – The DEB/RPM installs normally; for the portable ZIP make the binary executable (`chmod +x`).
+
+---
+
 ### Build from Source
 
 ```bash
