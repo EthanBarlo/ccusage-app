@@ -1,6 +1,6 @@
 # Ccusage
 
-A beautiful desktop application for visualizing Claude Code usage statistics. Track your Claude Code token usage, costs, and billing periods with an intuitive interface.
+A desktop **viewer** for the [ccusage CLI](https://github.com/ryoppippi/ccusage). It gives the same rich analytics in a native window – charts, live session monitor, navigation – using the JSON output of the command-line tool.
 
 <div align="center">
   <img src="build-resources/icon-256.png" alt="Ccusage Icon" width="128" height="128">
@@ -25,6 +25,13 @@ If you're using Claude Code, you need visibility into your token usage and costs
 - **Project Organization**: Keep track of different coding projects with custom names
 
 ## Installation
+
+> **Prerequisite** – install the underlying CLI first:
+> ```bash
+> npm i -g ccusage
+> ```
+> The desktop app shells out to `ccusage` under the hood; without it the charts will be empty.
+
 
 ### Download
 
@@ -54,124 +61,10 @@ These artifacts are **not** code-signed.
 
 ---
 
-### Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/claude-code-tracker.git
-cd claude-code-tracker
-
-# Install dependencies
-npm install
-
-# Run in development mode
-npm run dev
-
-# Build for your platform
-npm run make
-```
-
-## Prerequisites
-
-- [ccusage CLI](https://github.com/claudeai/ccusage) - The app uses `npx ccusage@latest` commands internally
-- Node.js 18 or higher (for building from source)
-
-## Tech Stack
-
-- **Electron**: Cross-platform desktop framework
-- **React 19**: Modern UI framework with TypeScript
-- **shadcn/ui**: Beautiful UI components
-- **Tailwind CSS**: Utility-first styling
-- **Vite**: Fast build tool
-- **date-fns**: Date manipulation and formatting
-
-## Screenshots
-
-### Dashboard
-View your overall usage statistics and current billing period progress.
-
-### Active Session
-Monitor your current Claude Code session with real-time updates, countdown timer, and burn rate.
-
-### Projects
-Organize and track usage across different coding projects with custom naming.
-
-### Daily Usage
-Visualize your daily token usage and costs over the past 14 days.
-
-## Configuration
-
-The app stores configuration and cached data in:
-
-- **macOS**: `~/Library/Application Support/ccusage/`
-- **Windows**: `%APPDATA%/ccusage/`
-- **Linux**: `~/.config/ccusage/`
-
 ## Development
 
-### Project Structure
+Developer setup, architecture and troubleshooting have been moved to **[DEVELOPMENT.md](DEVELOPMENT.md)** to keep this README focused for end-users.
 
-```plaintext
-ccusage-gui/
-├── src/
-│   ├── main/           # Electron main process
-│   ├── renderer/       # React app (renderer process)
-│   │   ├── components/ # React components
-│   │   ├── pages/      # Application pages
-│   │   ├── hooks/      # Custom React hooks
-│   │   └── lib/        # Utilities and services
-│   └── preload/        # Electron preload scripts
-├── electron/           # Electron configuration
-└── build-resources/    # Build assets (icons, etc.)
-```
-
-### Key Features Implementation
-
-- **IPC Communication**: Secure communication between main and renderer processes
-- **Data Caching**: Smart caching to reduce API calls with cache age indicators
-- **Auto-refresh**: Active session page refreshes every 15 seconds
-- **Persistent Storage**: Custom project names saved locally
-- **Date Range Filtering**: Automatic filtering based on billing periods
-
-### Available Scripts
-
-```bash
-# Development
-npm run dev          # Start the app in development mode
-npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript type checking
-npm run format       # Format code with Prettier
-
-# Building
-npm run build        # Build the app
-npm run make         # Create platform-specific distributables
-
-# Testing
-npm run test         # Run tests
-npm run test:watch   # Run tests in watch mode
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Troubleshooting
-
-### ccusage command not found
-
-If you encounter "ccusage: command not found" errors:
-
-1. Ensure you have Node.js and npm installed
-2. The app will automatically use `npx ccusage@latest` to run commands
-3. Check your internet connection as npx needs to download the package
-
-### Build Issues
-
-If you have issues building the app:
-
-1. Ensure you're using Node.js 18 or higher
-2. Delete `node_modules` and `package-lock.json`, then run `npm install`
-3. For macOS, you may need to install Xcode Command Line Tools
 
 ## Credits
 
