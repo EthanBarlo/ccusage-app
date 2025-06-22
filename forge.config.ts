@@ -53,6 +53,20 @@ const config: ForgeConfig = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      platforms: ["darwin", "win32", "linux"],
+      config: {
+        repository: {
+          owner: "EthanBarlo",
+          name: "ccusage-app",
+        },
+        prerelease: false,
+        draft: true,
+      },
+    },
+  ],
 };
 
 export default config;
