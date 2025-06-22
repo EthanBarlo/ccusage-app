@@ -1,7 +1,7 @@
 {
   "name": "ccusage-gui",
   "productName": "Ccusage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Electron app to visualize ccusage statistics",
   "main": ".vite/build/main.js",
   "private": true,
