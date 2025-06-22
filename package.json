@@ -1,8 +1,8 @@
 {
-  "name": "claude-code-tracker",
+  "name": "ccusage-gui",
   "productName": "Ccusage",
   "version": "1.0.0",
-  "description": "Electron app to visualize Claude Code usage statistics",
+  "description": "Electron app to visualize ccusage statistics",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
