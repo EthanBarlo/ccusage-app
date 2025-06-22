@@ -5,6 +5,10 @@ on:
     tags:
       - "v*"
 
+# grant the auto-generated GITHUB_TOKEN permission to create releases
+permissions:
+  contents: write
+
 jobs:
   make:
     runs-on: ${{ matrix.os }}
