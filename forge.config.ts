@@ -12,14 +12,15 @@ const config: ForgeConfig = {
     asar: true,
     icon: "./build-resources/icon", // Note: Do not include file extension
     name: "Ccusage",
+  executableName: "ccusage",
     appBundleId: "com.ccusage.app",
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ["darwin"]),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerRpm({ options: { name: "ccusage" } }),
+    new MakerDeb({ options: { name: "ccusage" } }),
   ],
   plugins: [
     new VitePlugin({
