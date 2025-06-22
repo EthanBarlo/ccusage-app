@@ -87,7 +87,7 @@
     "@tanstack/react-query": "^5.77.1",
     "@tanstack/react-router": "^1.120.20",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/router-devtools": "^1.117.1",
+    "@tanstack/router-devtools": "^1.121.27",
     "@vitejs/plugin-react": "^4.4.1",
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250328",
     "class-variance-authority": "^0.7.1",
