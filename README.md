@@ -1,156 +1,158 @@
-# electron-shadcn
+# Ccusage
 
-Electron in all its glory. Everything you will need to develop your beautiful desktop application.
+A beautiful desktop application for visualizing Claude Code usage statistics. Track your Claude Code token usage, costs, and billing periods with an intuitive interface.
 
-![Demo GIF](https://github.com/LuanRoger/electron-shadcn/blob/main/images/demo.gif)
+<div align="center">
+  <img src="build-resources/icon-256.png" alt="Ccusage Icon" width="128" height="128">
+</div>
 
-## Libs and tools
+## Features
 
-To develop a Electron app, you probably will need some UI, test, formatter, style or other kind of library or framework, so let me install and configure some of them to you.
+- **Real-time Usage Tracking**: Monitor your current Claude Code session with live updates
+- **Comprehensive Analytics**: View daily, monthly, and session-based usage statistics
+- **Active Session Monitor**: See countdown timers, burn rates, and projected costs for active sessions
+- **Project Management**: Organize and rename your Claude Code projects
+- **Billing Period Tracking**: Automatically tracks usage within your billing cycle
+- **Cross-Platform**: Works on macOS, Windows, and Linux
 
-### Core 🏍️
+## Why Ccusage?
 
-- [Electron 35](https://www.electronjs.org)
-- [Vite 6](https://vitejs.dev)
-- [SWC](https://swc.rs)
+If you're using Claude Code, you need visibility into your token usage and costs. Ccusage provides:
 
-### DX 🛠️
+- **Cost Control**: Know exactly how much you're spending on Claude Code
+- **Usage Insights**: Understand your usage patterns across different projects
+- **Plan Optimization**: See if you're maximizing your plan limits (max5, max20, or pro)
+- **Project Organization**: Keep track of different coding projects with custom names
 
-- [TypeScript 5.8](https://www.typescriptlang.org)
-- [Prettier](https://prettier.io)
-- [ESLint 9](https://eslint.org)
-- [Zod](https://zod.dev)
-- [React Query (TanStack)](https://react-query.tanstack.com)
+## Installation
 
-### UI 🎨
+### Download Pre-built App
 
-- [React 19](https://reactjs.org)
-- [Tailwind 4](https://tailwindcss.com)
-- [Shadcn UI](https://ui.shadcn.com)
-- [Geist](https://vercel.com/font) as default font
-- [i18next](https://www.i18next.com)
-- [TanStack Router](https://tanstack.com/router)
-- [Lucide](https://lucide.dev)
+Coming soon - pre-built releases for macOS, Windows, and Linux.
 
-### Test 🧪
-
-- [Vitest](https://vitest.dev)
-- [Playwright](https://playwright.dev)
-- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro)
-
-### Packing and distribution 📦
-
-- [Electron Forge](https://www.electronforge.io)
-
-### CI/CD 🚀
-
-- Pre-configured [GitHub Actions workflow](https://github.com/LuanRoger/electron-shadcn/blob/main/.github/workflows/playwright.yml), for test with Playwright
-
-### Project preferences 🎯
-
-- Use Context isolation
-- [React Compiler](https://react.dev/learn/react-compiler) is enabled by default.
-- `titleBarStyle`: hidden (Using custom title bar)
-- Geist as default font
-- Some default styles was applied, check the [`styles`](https://github.com/LuanRoger/electron-shadcn/tree/main/src/styles) directory
-- React DevTools are installed by default
-
-> If you don't know some of these libraries or tools, I recommend you to check their documentation to understand how they work and how to use them.
-
-> [!WARNING]
-> Prefer to use the [`canary` release of `shadcn/ui`](https://ui.shadcn.com/docs/tailwind-v4) to avoid compatibility issues with React 19 and Tailwind v4.
+### Build from Source
 
 ```bash
-npx shadcn@canary add button
+# Clone the repository
+git clone https://github.com/yourusername/claude-code-tracker.git
+cd claude-code-tracker
+
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run dev
+
+# Build for your platform
+npm run make
 ```
 
-## Directory structure
+## Prerequisites
+
+- [ccusage CLI](https://github.com/claudeai/ccusage) - The app uses `npx ccusage@latest` commands internally
+- Node.js 18 or higher (for building from source)
+
+## Tech Stack
+
+- **Electron**: Cross-platform desktop framework
+- **React 19**: Modern UI framework with TypeScript
+- **shadcn/ui**: Beautiful UI components
+- **Tailwind CSS**: Utility-first styling
+- **Vite**: Fast build tool
+- **date-fns**: Date manipulation and formatting
+
+## Screenshots
+
+### Dashboard
+View your overall usage statistics and current billing period progress.
+
+### Active Session
+Monitor your current Claude Code session with real-time updates, countdown timer, and burn rate.
+
+### Projects
+Organize and track usage across different coding projects with custom naming.
+
+### Daily Usage
+Visualize your daily token usage and costs over the past 14 days.
+
+## Configuration
+
+The app stores configuration and cached data in:
+
+- **macOS**: `~/Library/Application Support/ccusage/`
+- **Windows**: `%APPDATA%/ccusage/`
+- **Linux**: `~/.config/ccusage/`
+
+## Development
+
+### Project Structure
 
 ```plaintext
-.
-└── ./src/
-    ├── ./src/assets/
-    │   └── ./src/assets/fonts/
-    ├── ./src/components/
-    │   ├── ./src/components/template
-    │   └── ./src/components/ui/
-    ├── ./src/helpers/
-    │   └── ./src/helpers/ipc/
-    ├── ./src/layout/
-    ├── ./src/lib/
-    ├── ./src/pages/
-    ├── ./src/style/
-    └── ./src/tests/
+ccusage-gui/
+├── src/
+│   ├── main/           # Electron main process
+│   ├── renderer/       # React app (renderer process)
+│   │   ├── components/ # React components
+│   │   ├── pages/      # Application pages
+│   │   ├── hooks/      # Custom React hooks
+│   │   └── lib/        # Utilities and services
+│   └── preload/        # Electron preload scripts
+├── electron/           # Electron configuration
+└── build-resources/    # Build assets (icons, etc.)
 ```
 
-- `src/`: Main directory
-  - `assets/`: Store assets like images, fonts, etc.
-  - `components/`: Store UI components
-    - `template/`: Store the all not important components used by the template. It doesn't include the `WindowRegion` or the theme toggler, if you want to start an empty project, you can safely delete this directory.
-    - `ui/`: Store Shadcn UI components (this is the default direcotry used by Shadcn UI)
-  - `helpers/`: Store IPC related functions to be called in the renderer process
-    - `ipc/`: Directory to store IPC context and listener functions
-      - Some implementations are already done, like `theme` and `window` for the custom title bar
-  - `layout/`: Directory to store layout components
-  - `lib/`: Store libraries and other utilities
-  - `pages/`: Store app's pages
-  - `style/`: Store global styles
-  - `tests/`: Store tests (from Vitest and Playwright)
+### Key Features Implementation
 
-## NPM script
+- **IPC Communication**: Secure communication between main and renderer processes
+- **Data Caching**: Smart caching to reduce API calls with cache age indicators
+- **Auto-refresh**: Active session page refreshes every 15 seconds
+- **Persistent Storage**: Custom project names saved locally
+- **Date Range Filtering**: Automatic filtering based on billing periods
 
-To run any of those scripts:
+### Available Scripts
 
 ```bash
-npm run <script>
+# Development
+npm run dev          # Start the app in development mode
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript type checking
+npm run format       # Format code with Prettier
+
+# Building
+npm run build        # Build the app
+npm run make         # Create platform-specific distributables
+
+# Testing
+npm run test         # Run tests
+npm run test:watch   # Run tests in watch mode
 ```
 
-- `start`: Start the app in development mode
-- `package`: Package your application into a platform-specific executable bundle and put the result in a folder.
-- `make`: Generate platform-specific distributables (e.g. .exe, .dmg, etc) of your application for distribution.
-- `publish`: Electron Forge's way of taking the artifacts generated by the `make` command and sending them to a service somewhere for you to distribute or use as updates.
-- `lint`: Run ESLint to lint the code
-- `format`: Run Prettier to check the code (it doesn't change the code)
-- `format:write`: Run Prettier to format the code
-- `test`: Run the default unit-test script (Vitest)
-- `test:watch`: Run the default unit-test script in watch mode (Vitest)
-- `test:unit`: Run the Vitest tests
-- `test:e2e`: Run the Playwright tests
-- `test:all`: Run all tests (Vitest and Playwright)
+## Contributing
 
-> The test scripts involving Playwright require the app be builded before running the tests. So, before run the tests, run the `package`, `make` or `publish` script.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## How to use
+## Troubleshooting
 
-1. Clone this repository
+### ccusage command not found
 
-```bash
-git clone https://github.com/LuanRoger/electron-shadcn.git
-```
+If you encounter "ccusage: command not found" errors:
 
-Or use it as a template on GitHub
+1. Ensure you have Node.js and npm installed
+2. The app will automatically use `npx ccusage@latest` to run commands
+3. Check your internet connection as npx needs to download the package
 
-2. Install dependencies
+### Build Issues
 
-```bash
-npm install
-```
+If you have issues building the app:
 
-3. Run the app
+1. Ensure you're using Node.js 18 or higher
+2. Delete `node_modules` and `package-lock.json`, then run `npm install`
+3. For macOS, you may need to install Xcode Command Line Tools
 
-```bash
-npm run start
-```
+## Credits
 
-## Used by
-
-- [yaste](https://github.com/LuanRoger/yaste) - yaste (Yet another super ₛᵢₘₚₗₑ text editor) is a text editor, that can be used as an alternative to the native text editor of your SO, maybe.
-- [eletric-drizzle](https://github.com/LuanRoger/electric-drizzle) - shadcn-ui and Drizzle ORM with Electron.
-- [Wordle Game](https://github.com/masonyekta/wordle-game) - A Wordle game which features interactive gameplay, cross-platform compatibility, and integration with a custom Wordle API for word validation and letter correctness.
-- [Mehr 🌟](https://github.com/xmannii/MehrLocalChat) - A modern, elegant local AI chatbot application using Electron, React, shadcn/ui, and Ollama.
-
-> Does you've used this template in your project? Add it here and open a PR.
+Built with [electron-shadcn](https://github.com/LuanRoger/electron-shadcn) template.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/LuanRoger/electron-shadcn/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
