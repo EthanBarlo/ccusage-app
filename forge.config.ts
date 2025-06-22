@@ -19,8 +19,8 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ["darwin"]),
-    new MakerRpm({ options: { name: "ccusage" } }),
-    new MakerDeb({ options: { name: "ccusage" } }),
+    new MakerRpm({ options: { name: "ccusage", bin: "ccusage" } }),
+    new MakerDeb({ options: { name: "ccusage", bin: "ccusage" } }),
   ],
   plugins: [
     new VitePlugin({
