@@ -52,7 +52,7 @@ const data = {
       icon: IconClock,
     },
     {
-      title: "5-Hour Blocks",
+      title: "Sessions",
       url: "/blocks",
       icon: IconBoxMultiple,
     },

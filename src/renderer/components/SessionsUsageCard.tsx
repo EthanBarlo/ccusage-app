@@ -1,17 +1,17 @@
 import React, { useMemo } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Package } from "lucide-react";
-import { parseISO, differenceInDays, addMonths, subMonths } from "date-fns";
+import { parseISO, addMonths, subMonths } from "date-fns";
 import { StatCard } from "./StatCard";
 
-const BLOCKS_PER_PERIOD = 50;
+const SESSIONS_PER_PERIOD = 50;
 const BILLING_DATE_KEY = "billing_date";
 
-interface BlocksUsageCardProps {
+interface SessionsUsageCardProps {
   blocksData: any;
 }
 
-export function BlocksUsageCard({ blocksData }: BlocksUsageCardProps) {
+export function SessionsUsageCard({ blocksData }: SessionsUsageCardProps) {
   // Get billing date from localStorage
   const billingDate = useMemo(() => {
     const saved = localStorage.getItem(BILLING_DATE_KEY);
@@ -39,8 +39,8 @@ export function BlocksUsageCard({ blocksData }: BlocksUsageCardProps) {
     return { periodStart, periodEnd };
   }, [billingDate]);
 
-  // Calculate blocks used in current billing period
-  const blocksInCurrentPeriod = useMemo(() => {
+  // Calculate sessions used in current billing period
+  const sessionsInCurrentPeriod = useMemo(() => {
     if (!blocksData?.blocks) return 0;
     
     return blocksData.blocks.filter((block: any) => {
@@ -50,19 +50,19 @@ export function BlocksUsageCard({ blocksData }: BlocksUsageCardProps) {
     }).length;
   }, [blocksData, periodStart, periodEnd]);
 
-  const blocksRemaining = BLOCKS_PER_PERIOD - blocksInCurrentPeriod;
-  const blocksUsagePercentage = (blocksInCurrentPeriod / BLOCKS_PER_PERIOD) * 100;
+  const sessionsRemaining = SESSIONS_PER_PERIOD - sessionsInCurrentPeriod;
+  const sessionsUsagePercentage = (sessionsInCurrentPeriod / SESSIONS_PER_PERIOD) * 100;
 
   return (
     <StatCard
-      title="Blocks Used"
-      description={`${blocksRemaining} blocks remaining`}
+      title="Sessions Used"
+      description={`${sessionsRemaining} sessions remaining`}
       icon={<Package className="h-4 w-4 text-muted-foreground" />}
     >
       <div className="text-2xl font-bold">
-        {blocksInCurrentPeriod} / {BLOCKS_PER_PERIOD}
+        {sessionsInCurrentPeriod} / {SESSIONS_PER_PERIOD}
       </div>
-      <Progress value={blocksUsagePercentage} className="mt-2 mb-1" />
+      <Progress value={sessionsUsagePercentage} className="mt-2 mb-1" />
     </StatCard>
   );
 }
