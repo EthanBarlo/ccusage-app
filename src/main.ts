@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from "electron";
+import { existsSync } from "fs";
 import registerListeners from "./helpers/ipc/listeners-register";
 // "electron-squirrel-startup" seems broken when packaging with vite
 //import started from "electron-squirrel-startup";
@@ -12,10 +13,12 @@ const inDevelopment = process.env.NODE_ENV === "development";
 
 function createWindow() {
   const preload = path.join(__dirname, "preload.js");
+  const iconPath = path.join(process.cwd(), "build-resources/icon.png");
+  
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    icon: path.join(__dirname, "../../../build-resources/icon.png"),
+    icon: existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       devTools: inDevelopment,
       contextIsolation: true,
@@ -49,8 +52,14 @@ async function installExtensions() {
 app.whenReady().then(() => {
   // Set dock icon for macOS
   if (process.platform === "darwin") {
-    const iconPath = path.join(__dirname, "../../../build-resources/icon.png");
-    app.dock.setIcon(iconPath);
+    const iconPath = path.join(process.cwd(), "build-resources/icon.png");
+    if (existsSync(iconPath)) {
+      try {
+        app.dock.setIcon(iconPath);
+      } catch (error) {
+        console.error('Failed to set dock icon:', error);
+      }
+    }
   }
   
   createWindow();

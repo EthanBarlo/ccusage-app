@@ -6,7 +6,7 @@ import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ReferenceLine } from "rec
 import { AlertCircle, TrendingUp, RefreshCw, Database } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { BlocksUsageCard } from "@/renderer/components/BlocksUsageCard";
+import { SessionsUsageCard } from "@/renderer/components/SessionsUsageCard";
 import { StatCard } from "@/renderer/components/StatCard";
 import { 
   format, 
@@ -23,13 +23,13 @@ import {
 } from "date-fns";
 
 const chartConfig = {
-  blocks: {
-    label: "Blocks",
+  sessions: {
+    label: "Sessions",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
-const BLOCKS_PER_PERIOD = 50;
+const SESSIONS_PER_PERIOD = 50;
 const BILLING_DATE_KEY = "billing_date";
 
 export default function BlocksPage() {
@@ -87,8 +87,8 @@ export default function BlocksPage() {
     return null;
   }, [ccusageData]);
 
-  // Calculate blocks used in current billing period
-  const blocksInCurrentPeriod = useMemo(() => {
+  // Calculate sessions used in current billing period
+  const sessionsInCurrentPeriod = useMemo(() => {
     if (!ccusageData?.blocks) return 0;
     
     return ccusageData.blocks.filter((block: any) => {
@@ -98,50 +98,50 @@ export default function BlocksPage() {
     }).length;
   }, [ccusageData, periodStart, periodEnd]);
 
-  const blocksRemaining = BLOCKS_PER_PERIOD - blocksInCurrentPeriod;
-  const blocksUsagePercentage = (blocksInCurrentPeriod / BLOCKS_PER_PERIOD) * 100;
+  const sessionsRemaining = SESSIONS_PER_PERIOD - sessionsInCurrentPeriod;
+  const sessionsUsagePercentage = (sessionsInCurrentPeriod / SESSIONS_PER_PERIOD) * 100;
 
-  // Calculate average blocks per day and projection
-  const { averageBlocksPerDay, projectedTotalBlocks, willExceedLimit } = useMemo(() => {
-    if (!ccusageData?.blocks || blocksInCurrentPeriod === 0) {
-      return { averageBlocksPerDay: 0, projectedTotalBlocks: 0, willExceedLimit: false };
+  // Calculate average sessions per day and projection
+  const { averageSessionsPerDay, projectedTotalSessions, willExceedLimit } = useMemo(() => {
+    if (!ccusageData?.blocks || sessionsInCurrentPeriod === 0) {
+      return { averageSessionsPerDay: 0, projectedTotalSessions: 0, willExceedLimit: false };
     }
 
     const now = new Date();
     const daysElapsed = Math.max(1, differenceInDays(now, periodStart) + 1);
     const daysInPeriod = differenceInDays(periodEnd, periodStart);
     
-    const averageBlocksPerDay = blocksInCurrentPeriod / daysElapsed;
-    const projectedTotalBlocks = Math.round(averageBlocksPerDay * daysInPeriod);
-    const willExceedLimit = projectedTotalBlocks > BLOCKS_PER_PERIOD;
+    const averageSessionsPerDay = sessionsInCurrentPeriod / daysElapsed;
+    const projectedTotalSessions = Math.round(averageSessionsPerDay * daysInPeriod);
+    const willExceedLimit = projectedTotalSessions > SESSIONS_PER_PERIOD;
 
-    return { averageBlocksPerDay, projectedTotalBlocks, willExceedLimit };
-  }, [ccusageData, blocksInCurrentPeriod, periodStart, periodEnd]);
+    return { averageSessionsPerDay, projectedTotalSessions, willExceedLimit };
+  }, [ccusageData, sessionsInCurrentPeriod, periodStart, periodEnd]);
 
   const chartData = useMemo(() => {
     // If no data, return minimal chart data
     if (!ccusageData?.blocks) {
       return [{
         date: periodStart.toISOString(),
-        blocks: 0,
+        sessions: 0,
       }, {
         date: periodEnd.toISOString(),
-        blocks: 0,
+        sessions: 0,
       }];
     }
     
-    // Get blocks from current billing period
+    // Get sessions from current billing period
     const periodBlocks = ccusageData.blocks.filter((block: any) => {
       if (block.isGap) return false;
       const blockDate = parseISO(block.startTime);
       return blockDate >= periodStart && blockDate < periodEnd;
     }).sort((a: any, b: any) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime());
     
-    // Create a map of blocks per day
-    const blocksByDay = new Map<string, number>();
+    // Create a map of sessions per day
+    const sessionsByDay = new Map<string, number>();
     periodBlocks.forEach((block: any) => {
       const date = format(parseISO(block.startTime), 'yyyy-MM-dd');
-      blocksByDay.set(date, (blocksByDay.get(date) || 0) + 1);
+      sessionsByDay.set(date, (sessionsByDay.get(date) || 0) + 1);
     });
     
     // Generate data for every day in the period using date-fns
@@ -150,12 +150,12 @@ export default function BlocksPage() {
     
     const dailyData = days.map(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
-      const blocksToday = blocksByDay.get(dateStr) || 0;
-      cumulativeCount += blocksToday;
+      const sessionsToday = sessionsByDay.get(dateStr) || 0;
+      cumulativeCount += sessionsToday;
       
       return {
         date: day.toISOString(),
-        blocks: cumulativeCount,
+        sessions: cumulativeCount,
       };
     });
     
@@ -185,14 +185,11 @@ export default function BlocksPage() {
     }
   };
 
-  const formatBlockTime = (dateString: string) => {
-    return format(parseISO(dateString), "MMM d, h:mm a");
-  };
 
   if (loading && !ccusageData) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>Loading blocks data...</p>
+        <p>Loading sessions data...</p>
       </div>
     );
   }
@@ -209,8 +206,8 @@ export default function BlocksPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">5-Hour Blocks</h1>
-          <p className="text-muted-foreground">View your Claude Code usage in 5-hour billing windows</p>
+          <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
+          <p className="text-muted-foreground">View your Claude Code usage sessions</p>
         </div>
         <div className="flex items-center gap-2">
           {fromCache && (
@@ -232,18 +229,18 @@ export default function BlocksPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <BlocksUsageCard blocksData={ccusageData} />
+        <SessionsUsageCard blocksData={ccusageData} />
 
         <StatCard
           title="Usage Rate"
-          description="Blocks per day average"
+          description="Sessions per day average"
           icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
         >
           <div className="text-2xl font-bold">
-            {averageBlocksPerDay.toFixed(1)}
+            {averageSessionsPerDay.toFixed(1)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Projected: {projectedTotalBlocks} blocks total
+            Projected: {projectedTotalSessions} sessions total
           </p>
         </StatCard>
       </div>
@@ -252,15 +249,15 @@ export default function BlocksPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            At your current usage rate, you're projected to use {projectedTotalBlocks} blocks 
-            by the end of this billing period, exceeding your {BLOCKS_PER_PERIOD} block limit.
+            At your current usage rate, you're projected to use {projectedTotalSessions} sessions 
+            by the end of this billing period, exceeding your {SESSIONS_PER_PERIOD} session limit.
           </AlertDescription>
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Block Usage - Current Billing Period</CardTitle>
+          <CardTitle>Session Usage - Current Billing Period</CardTitle>
           <CardDescription>
             {format(periodStart, 'MM/dd/yyyy')} - {format(periodEnd, 'MM/dd/yyyy')} • Resets on the {billingDate}{getOrdinalSuffix(billingDate)} of each month
           </CardDescription>
@@ -293,7 +290,7 @@ export default function BlocksPage() {
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  domain={[0, BLOCKS_PER_PERIOD]}
+                  domain={[0, SESSIONS_PER_PERIOD]}
                   ticks={[0, 10, 20, 30, 40, 50]}
                 />
                 <ChartTooltip
@@ -302,16 +299,16 @@ export default function BlocksPage() {
                 />
                 <defs>
                   <linearGradient id="blockGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-blocks)" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="var(--color-blocks)" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="var(--color-sessions)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--color-sessions)" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
                 <Area
-                  dataKey="blocks"
+                  dataKey="sessions"
                   type="stepAfter"
-                  fill="var(--color-blocks)"
+                  fill="var(--color-sessions)"
                   fillOpacity={0.3}
-                  stroke="var(--color-blocks)"
+                  stroke="var(--color-sessions)"
                   strokeWidth={2}
                 />
                 {/* Add a reference line for today */}

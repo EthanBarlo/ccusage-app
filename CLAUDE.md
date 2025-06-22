@@ -98,7 +98,7 @@ ipcMain.handle('run-ccusage', async (event, args) => {
 - `daily`: Daily usage reports
 - `monthly`: Monthly aggregated reports
 - `session`: Session-based reports
-- `blocks`: 5-hour billing window reports
+- `blocks`: Session-based billing window reports
 
 ### Data Storage
 
@@ -112,8 +112,8 @@ Store fetched data and user preferences using electron-store:
 
 Display usage relative to plan limits:
 
-- **max5**: 500,000 tokens per 5-hour block
-- **max20**: 2,000,000 tokens per 5-hour block
+- **max5**: 500,000 tokens per session
+- **max20**: 2,000,000 tokens per session
 - **pro**: Unlimited
 
 ### Electron Security

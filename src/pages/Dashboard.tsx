@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { useCcusage } from "@/renderer/hooks/useCcusage";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Database, TrendingUp, Calendar } from "lucide-react";
-import { BlocksUsageCard } from "@/renderer/components/BlocksUsageCard";
+import { SessionsUsageCard } from "@/renderer/components/SessionsUsageCard";
 import { DailyUsageChart } from "@/renderer/components/DailyUsageChart";
 import { StatCard } from "@/renderer/components/StatCard";
 import { format } from "date-fns";
@@ -170,8 +170,8 @@ export default function Dashboard() {
           <div className="text-2xl font-bold">{formatCost(costThisPeriod)}</div>
         </StatCard>
 
-        {/* Blocks Used */}
-        <BlocksUsageCard blocksData={blocksData} />
+        {/* Sessions Used */}
+        <SessionsUsageCard blocksData={blocksData} />
 
         {/* Average Daily Cost */}
         <StatCard
