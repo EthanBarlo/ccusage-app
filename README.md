@@ -26,9 +26,16 @@ If you're using Claude Code, you need visibility into your token usage and costs
 
 ## Installation
 
-### Download Pre-built App
+### Download
 
-Coming soon - pre-built releases for macOS, Windows, and Linux.
+Grab the installers from the **[latest release](https://github.com/EthanBarlo/ccusage-app/releases/latest)**.
+
+Direct links for v1.0.1:
+
+- **macOS (Apple Silicon)** – [Ccusage-darwin-arm64-1.0.1.zip](https://github.com/EthanBarlo/ccusage-app/releases/download/v1.0.1/Ccusage-darwin-arm64-1.0.1.zip)
+- **Windows** – [Ccusage-1.0.1 Setup.exe](https://github.com/EthanBarlo/ccusage-app/releases/download/v1.0.1/Ccusage-1.0.1.Setup.exe)
+- **Linux (DEB, amd64)** – [ccusage_1.0.1_amd64.deb](https://github.com/EthanBarlo/ccusage-app/releases/download/v1.0.1/ccusage_1.0.1_amd64.deb)
+- **Linux (RPM, x86_64)** – [ccusage-1.0.1-1.x86_64.rpm](https://github.com/EthanBarlo/ccusage-app/releases/download/v1.0.1/ccusage-1.0.1-1.x86_64.rpm)
 
 ### Build from Source
 
